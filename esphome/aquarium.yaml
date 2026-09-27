@@ -1,0 +1,92 @@
+# Smart Controller — 60 cm planted tank
+# Import into ESPHome / Home Assistant. Copy secrets.example.yaml → secrets.yaml first.
+
+substitutions:
+  device_name: smart-controller
+  friendly_name: Smart Controller
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# Logger
+logger:
+
+# Home Assistant API
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  ap:
+    ssid: "SmartController-Fallback"
+    password: "smartcontroller"
+
+captive_portal:
+
+# ---------------------------------------------------------------------------
+# Light — finished full-spectrum strip via MOSFET on GPIO16
+# ---------------------------------------------------------------------------
+output:
+  - platform: ledc
+    id: light_pwm
+    pin: GPIO16
+    frequency: 1000 Hz
+
+light:
+  - platform: monochromatic
+    name: "Tank Light"
+    id: tank_light
+    output: light_pwm
+    default_transition_length: 1s
+    restore_mode: RESTORE_DEFAULT_OFF
+
+# ---------------------------------------------------------------------------
+# Filter pump — relay on GPIO17 (uncomment when wired)
+# ---------------------------------------------------------------------------
+# switch:
+#   - platform: gpio
+#     name: "Filter Pump"
+#     id: filter_pump
+#     pin:
+#       number: GPIO17
+#       inverted: false
+#     restore_mode: RESTORE_DEFAULT_ON
+
+# ---------------------------------------------------------------------------
+# Feeder — servo on GPIO18 (uncomment when wired)
+# ---------------------------------------------------------------------------
+# output:
+#   - platform: ledc
+#     id: feeder_servo_pwm
+#     pin: GPIO18
+#     frequency: 50 Hz
+#
+# servo:
+#   - id: feeder_servo
+#     output: feeder_servo_pwm
+#
+# button:
+#   - platform: template
+#     name: "Feed Now"
+#     id: feed_now
+#     on_press:
+#       - servo.write:
+#           id: feeder_servo
+#           level: 40%
+#       - delay: 800ms
+#       - servo.write:
+#           id: feeder_servo
+#           level: 0%

@@ -1,0 +1,13 @@
+# ESPHome secrets — never commit real credentials
+esphome/secrets.yaml
+secrets.yaml
+
+# Local / IDE
+.DS_Store
+.idea/
+.vscode/
+*.log
+
+# ESPHome build artifacts (if compiling in-repo)
+.esphome/
+**/build/
